@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Student Grades Report</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f9f9f9;
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
+      color: #333;
+    }
+
+    h2, h3 {
+      text-align: center;
+      color: #2c3e50;
+    }
+
+    .student-count-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .student-count-row label {
+      min-width: 140px;
+      font-weight: 600;
+    }
+
+    .student-count-row input[type="number"] {
+      flex: 1;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+
+    button {
+      padding: 10px 15px;
+      background-color: #d36431;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      width: 100%;
+      margin-top: 15px;
+    }
+
+    button:hover {
+      background-color: white;
+      color: #d36431;
+      box-shadow: 0 0 10px #d36431;
+    }
+
+    #studentInputs .student-row {
+      background: white;
+      padding: 10px 15px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    #studentInputs .student-row label {
+      font-weight: 600;
+      min-width: 90px;
+    }
+
+    #studentInputs .student-row input {
+      flex: 1;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    #reportList {
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .report-card {
+      background: white;
+      padding: 15px 20px;
+      border-radius: 10px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 1.1rem;
+    }
+
+    .report-card .name {
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: #2c3e50;
+    }
+
+    .report-card .grade {
+      color: #555;
+    }
+
+    .report-card .status {
+      font-weight: 600;
+      color: #4caf50;
+    }
+
+    .report-card.fail .status {
+      color: #e74c3c;
+    }
+  </style>
+</head>
+<body>
+  <h2>Student Grades Report</h2>
+
+  <div class="student-count-row">
+    <label for="studentCount">Number of Students:</label>
+    <input type="number" id="studentCount" min="1" />
+  </div>
+
+  <div id="studentInputs"></div>
+
+  <button id="reportBtn" onclick="handleReport()">Show Report</button>
+
+  <h3>Report:</h3>
+  <div id="reportList"></div>
+
+  <script>
+    let inputsGenerated = false;
+
+    function handleReport() {
+      const count = parseInt(document.getElementById('studentCount').value);
+
+      if (isNaN(count) || count < 1) {
+        alert("Please enter a valid number of students.");
+        return;
+      }
+
+      const container = document.getElementById('studentInputs');
+      const reportList = document.getElementById('reportList');
+
+      if (!inputsGenerated) {
+        // First click: generate inputs
+        container.innerHTML = "";
+        reportList.innerHTML = "";
+        for (let i = 0; i < count; i++) {
+          container.innerHTML += `
+            <div class="student-row">
+              <label>Student ${i + 1} Name:</label>
+              <input type="text" id="name${i}" required />
+              <label>Grade:</label>
+              <input type="number" id="grade${i}" min="0" max="100" required />
+            </div>
+          `;
+        }
+        inputsGenerated = true;
+        document.getElementById('reportBtn').textContent = "Generate Report";
+      } else {
+        // Second click: generate report
+        reportList.innerHTML = "";
+        for (let i = 0; i < count; i++) {
+          const name = document.getElementById(`name${i}`).value.trim();
+          const grade = parseFloat(document.getElementById(`grade${i}`).value);
+
+          if (!name) {
+            alert(`Please enter a valid name for student ${i + 1}.`);
+            return;
+          }
+
+          if (isNaN(grade) || grade < 0 || grade > 100) {
+            alert(`Please enter a valid grade (0-100) for student ${i + 1}.`);
+            return;
+          }
+
+          const status = grade >= 60 ? "Passed" : "Failed";
+
+          const card = document.createElement('div');
+          card.className = 'report-card';
+          if (status === "Failed") card.classList.add('fail');
+
+          card.innerHTML = `
+            <div class="name">${name}</div>
+            <div class="grade"><strong>Grade:</strong> ${grade}</div>
+            <div class="status"><strong>Status:</strong> ${status}</div>
+          `;
+
+          reportList.appendChild(card);
+        }
+
+        // Reset for future use
+        inputsGenerated = false;
+        document.getElementById('reportBtn').textContent = "Show Report";
+      }
+    }
+  </script>
+</body>
+</html>
